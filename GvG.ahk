@@ -1,9 +1,3 @@
-MessageWithSound(message){
-	SoundPlay *-1
-	MsgBox %message%
-}
-
-
 ^!-:: ;altGr+7 abort 1
 Abort(13)
 return
@@ -12,15 +6,6 @@ return
 ^!8::
 	i=200
 	MessageWithSound("Testing "+i)
-return
-
-ShowToolTip(message){
-	ToolTip, %message%, 50, 100
-	SetTimer, RemoveToolTip, -15000
-}
-
-RemoveToolTip:
-	ToolTip
 return
 
 ^!2::
@@ -91,6 +76,87 @@ While M<1000 {
 	M++
 }
 return
+
+^!q:: ;ctrl+alt+q - AA set
+Click, 1434,625 
+Sleep, 100  ; 1/10 second
+Click, 1385,873 ; place
+
+return
+
+
+^!s::  ;ctrl+alt+s - set attack
+
+Click, 1434,625 
+Sleep, 100  ; 1/10 second
+Click, 1398,957 ; place
+
+return
+
+^!d::  ;ctrl+alt+d - add DA
+
+Click, 1294,527 ;8th postion
+Click, 1059,652 ; place
+
+return
+
+
+^!a::  ;ctrl+alt+a -- auto attack
+MouseGetPos, xpos, ypos
+Click, 1218,1007 ; place
+MouseMove, xpos, ypos
+return
+
+f3:: ;click
+Click
+return
+
+^f1:: ; get mouse postion
+	MouseGetPos, xpos, ypos 
+	MsgBox, The cursor is at X:%xpos% Y:%ypos%.
+return
+
+
+^!0:: ; Aid
+j=0
+x=315
+While j<5 {
+	XP:=x+(j*115)
+	YP=1395
+	Click, %XP%, %YP%
+	Sleep, 1000
+	Click, %XP%, %YP%
+	Sleep, 1000
+	j++
+}
+Click, 924, 1342
+return
+
+
+^!7:: ; Aid from history
+	While(true) {
+		 While ClickButtonWithColor(1629, 678, 1763, 982, 0x945020, 2) = true { ;- brown color
+			Sleep, 1500
+			Click, 1760, 1055
+			Sleep, 500
+		 }
+		 ShowToolTip("Looking for next page")
+		 
+		 Sleep, 1000
+		 
+		 if (ClickButtonWithColor(1340, 994, 1366, 1021, 0x4d5870, 3) = true ) {
+			ShowToolTip("Found next page")
+			Sleep, 2000
+		 } else {
+			ShowToolTip("No next page! Break")
+			break
+		 }
+	}
+	 ; 47526a - active next
+	 ; 525252 - inactive next
+return
+
+^Esc::Reload ;ExitApp
 
 
 SelectTwoTankArmy() {
@@ -221,11 +287,11 @@ FindArmyWindow() {
 	return false
 }
 
-ClickButtonWithColor(x1, y1, x2, y2, color){
+ClickButtonWithColor(x1, y1, x2, y2, color, totalTries:=5){
 	i=0
-	While i<5 
+	While i<totalTries 
 	{
-		PixelSearch, Px, Py, x1, y1, x2, y2, color, 3, Fast RGB ;x1, y1, x2, y2 - brown color
+		PixelSearch, Px, Py, x1, y1, x2, y2, color, 3, Fast RGB ;x1, y1, x2, y2 
 		if ErrorLevel <=0 
 		{
 		   Click, %Px%, %Py%
@@ -243,67 +309,23 @@ ClickButtonWithColor(x1, y1, x2, y2, color){
 }
 
 AutoAttack(x1, y1, x2, y2) {
-	return ClickButtonWithColor(x1, y1, x2, y2, 0x945020)
+	return ClickButtonWithColor(x1, y1, x2, y2, 0x945020) ;- brown color
 }
 
 FightDone(x1, y1, x2, y2) {
-	return ClickButtonWithColor(x1, y1, x2, y2, 0x537f1d)
+	return ClickButtonWithColor(x1, y1, x2, y2, 0x537f1d) ;- green color
 }
 
-^!q:: ;ctrl+alt+q - AA set
-Click, 1434,625 
-Sleep, 100  ; 1/10 second
-Click, 1385,873 ; place
 
-return
-
-
-^!s::  ;ctrl+alt+s - set attack
-
-Click, 1434,625 
-Sleep, 100  ; 1/10 second
-Click, 1398,957 ; place
-
-return
-
-^!d::  ;ctrl+alt+d - add DA
-
-Click, 1294,527 ;8th postion
-Click, 1059,652 ; place
-
-return
-
-
-^!a::  ;ctrl+alt+a -- auto attack
-MouseGetPos, xpos, ypos
-Click, 1218,1007 ; place
-MouseMove, xpos, ypos
-return
-
-f3:: ;click
-Click
-return
-
-^f1:: ; get mouse postion
-	MouseGetPos, xpos, ypos 
-	MsgBox, The cursor is at X:%xpos% Y:%ypos%.
-return
-
-
-^!0:: ; Aid
-j=0
-x=315
-While j<5 {
-	XP:=x+(j*115)
-	YP=1395
-	Click, %XP%, %YP%
-	Sleep, 1000
-	Click, %XP%, %YP%
-	Sleep, 1000
-	j++
+MessageWithSound(message){
+	SoundPlay *-1
+	MsgBox %message%
 }
-Click, 924, 1342
 
+ShowToolTip(message){
+	ToolTip, %message%, 50, 100
+	SetTimer, RemoveToolTip, -15000
+}
+RemoveToolTip:
+	ToolTip
 return
-
-^Esc::Reload ;ExitApp
