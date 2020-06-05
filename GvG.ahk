@@ -1,11 +1,11 @@
-^!-:: ;altGr+7 abort 1
-Abort(13)
+^!0:: ;altGr+7 abort 1
+Abort(12)
 return
 
 ;;test
 ^!8::
 	i=200
-	MessageWithSound("Testing "+i)
+	ShowToolTip("Not found", -1000)
 return
 
 ^!2::
@@ -15,7 +15,7 @@ return
 ^!9:: ;law goods quest
 M=0
 F=0
-totalWave=4
+totalWave=3
 
 While M<1000 {
 	i=0
@@ -36,7 +36,7 @@ While M<1000 {
 					ShowToolTip("Total Fight count "+F)
 					if (i<(totalWave-1)) {
 						Sleep, 1000
-						Abort(14)
+						Abort(13)
 					}
 				} else {
 					MessageWithSound("Breaking Cause No 2nd Wave, Fight "+F)
@@ -67,11 +67,11 @@ While M<1000 {
 	Click, 22, 402 
 	
 	Sleep, 100
-	Abort(13)
+	Abort(12)
 	Sleep, 1000
 	AbortCord(218, 370, 399, 394, 1) ; abort from top
 	Sleep, 1000
-	Abort(13)
+	Abort(12)
 	
 	M++
 }
@@ -101,10 +101,21 @@ Click, 1059,652 ; place
 return
 
 
-^!a::  ;ctrl+alt+a -- auto attack
+^!o::  ;ctrl+alt+o -- old auto attack
 MouseGetPos, xpos, ypos
 Click, 1218,1007 ; place
 MouseMove, xpos, ypos
+return
+
+f2::  ;ctrl+alt+a -- auto attack
+	MouseGetPos, xpos, ypos
+	if(ClickButtonWithColor(1122, 969, 1305, 1022, 0x945020, 1)=false ) {
+		ShowToolTip("Looking for green", -1000)
+		if (ClickButtonWithColor(1122, 969, 1305, 1022, 0x4a7219, 1)=false) {
+			Click, 1218,1007 ; place
+		}
+	}
+	MouseMove, xpos, ypos
 return
 
 f3:: ;click
@@ -113,27 +124,19 @@ return
 
 ^f1:: ; get mouse postion
 	MouseGetPos, xpos, ypos 
-	MsgBox, The cursor is at X:%xpos% Y:%ypos%.
+	
+	
+	;CoordMode, mouse, Relative
+
+	WinGetActiveStats, Title, Width, Height, X, Y
+	
+	rightX := Width - xpos
+	botY := Height - ypos
+	
+	MsgBox, From LeftX:%xpos%, TopY:%ypos%, RightX: %rightX%, BotY: %botY% Window Info: Title: %Title%, Width: %Width%, H: %Height%
 return
 
-
-^!0:: ; Aid
-j=0
-x=315
-While j<5 {
-	XP:=x+(j*115)
-	YP=1395
-	Click, %XP%, %YP%
-	Sleep, 1000
-	Click, %XP%, %YP%
-	Sleep, 1000
-	j++
-}
-Click, 924, 1342
-return
-
-
-^!7:: ; Aid from history
+^!-:: ; Aid from history
 	While(true) {
 		 While ClickButtonWithColor(1629, 678, 1763, 982, 0x945020, 2) = true { ;- brown color
 			Sleep, 1500
@@ -154,6 +157,26 @@ return
 	}
 	 ; 47526a - active next
 	 ; 525252 - inactive next
+return
+
+!^m:: ;; Watch FE and AA
+	WinGetActiveStats, Title, Width, Height, X, Y
+	botY := Height-80
+	;Click, 189, %botY% ; click on Gv map button
+	;Sleep, 5000
+	botYA := Height-314
+	botYF := Height-763
+	While (true) {
+		Click, 982, %botYA% ; AA
+		Sleep, 10000
+		Click, 185, %botY% ; back button
+		Sleep, 9000
+		
+		Click, 1250, %botYF% ; FE
+		Sleep, 10000
+		Click, 185, %botY% ; back button
+		Sleep, 8000
+	}
 return
 
 ^Esc::Reload ;ExitApp
@@ -291,6 +314,11 @@ ClickButtonWithColor(x1, y1, x2, y2, color, totalTries:=5){
 	i=0
 	While i<totalTries 
 	{
+		if(i>0) {
+			sleepSec := 500+((i**2)*100)
+			sleep, %sleepSec%
+		}
+		
 		PixelSearch, Px, Py, x1, y1, x2, y2, color, 3, Fast RGB ;x1, y1, x2, y2 
 		if ErrorLevel <=0 
 		{
@@ -302,8 +330,6 @@ ClickButtonWithColor(x1, y1, x2, y2, color, totalTries:=5){
 			;MsgBox Not found
 			i++
 		}
-		sleepSec := 500+((i**2)*100)
-		sleep, %sleepSec%
 	}
 	return false
 }
@@ -322,9 +348,9 @@ MessageWithSound(message){
 	MsgBox %message%
 }
 
-ShowToolTip(message){
+ShowToolTip(message, timeToStay:=-15000){
 	ToolTip, %message%, 50, 100
-	SetTimer, RemoveToolTip, -15000
+	SetTimer, RemoveToolTip, %timeToStay%
 }
 RemoveToolTip:
 	ToolTip
