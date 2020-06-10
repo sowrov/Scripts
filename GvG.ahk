@@ -1,11 +1,17 @@
-^!0:: ;altGr+7 abort 1
+f7:: ;altGr+7 abort 1
 Abort(12)
 return
 
 ;;test
 ^!8::
-	i=200
-	ShowToolTip("Not found", -1000)
+	i=1
+	eight:=true
+	while(eight=true) {
+		ShowToolTip("Not found "+i, -1000)
+		Sleep, 1000
+		i++
+		eight := GetKeyState(8, P)
+	}
 return
 
 ^!2::
@@ -27,11 +33,11 @@ While M<1000 {
 		if FindArmyWindow() = true {
 			;MsgBox, Army Window showed
 			SelectTwoTankArmy()
-			if AutoAttack(1125, 993, 1310, 1018) = true {
+			if AutoAttack(811, 809, 987, 843) = true {
 				Sleep, 4000
-				if AutoAttack(1199, 993, 1378, 1051) = true {
+				if AutoAttack(811, 809, 987, 843) = true {
 					Sleep, 2000
-					FightDone(1199, 993, 1378, 1051)
+					FightDone(875, 819, 1056, 847)
 					F++
 					ShowToolTip("Total Fight count "+F)
 					if (i<(totalWave-1)) {
@@ -77,7 +83,7 @@ While M<1000 {
 }
 return
 
-^!q:: ;ctrl+alt+q - AA set
+f5:: ;ctrl+alt+q - AA set
 Click, 1434,625 
 Sleep, 100  ; 1/10 second
 Click, 1385,873 ; place
@@ -85,7 +91,7 @@ Click, 1385,873 ; place
 return
 
 
-^!s::  ;ctrl+alt+s - set attack
+f4::  ;ctrl+alt+s - set attack
 
 Click, 1434,625 
 Sleep, 100  ; 1/10 second
@@ -101,12 +107,6 @@ Click, 1059,652 ; place
 return
 
 
-^!o::  ;ctrl+alt+o -- old auto attack
-MouseGetPos, xpos, ypos
-Click, 1218,1007 ; place
-MouseMove, xpos, ypos
-return
-
 f2::  ;ctrl+alt+a -- auto attack
 	MouseGetPos, xpos, ypos
 	if(ClickButtonWithColor(1122, 969, 1305, 1022, 0x945020, 1)=false ) {
@@ -119,7 +119,13 @@ f2::  ;ctrl+alt+a -- auto attack
 return
 
 f3:: ;click
-Click
+	fkey:=true
+	while(fkey=true) {
+		Click
+		Sleep, 50
+		i++
+		fkey := GetKeyState(F3, P)
+	}
 return
 
 ^f1:: ; get mouse postion
@@ -185,23 +191,23 @@ return
 SelectTwoTankArmy() {
 	i=0
 	While i<8 { ;remove troops
-		Click, 987, 644
+		Click, 672, 461
 		sleep, 100
 		i++
 	}
 	
 		
 	;click on tank 
-	Click, 1134, 795
+	Click, 817, 617
 	sleep, 50
-		Click, 1351, 852
+		Click, 1023, 676
 		sleep, 100
 		
 		
 	;click on range 
-	Click, 1271, 796
+	Click, 949, 617
 	sleep, 50
-		Click, 1351, 852
+		Click, 1023, 676
 		sleep, 100
 	
 	;i=0
@@ -213,21 +219,21 @@ SelectTwoTankArmy() {
 	;}
 	
 	;click on menu
-	Click, 1613, 793
+	Click, 1332, 617
 	sleep, 300
 	
 	;select bronze
-	Click, 1570, 843
+	Click, 1254, 662
 	sleep, 200
 	
 	;Click on light unit
-	Click 1180, 800
+	Click 861, 617
 	sleep, 200
 	
 	i=0
 	; take 6 rogues from bronze era
 	While i<6 {
-		Click, 1058, 852
+		Click, 751, 678
 		sleep, 100
 		i++
 	}
@@ -289,12 +295,12 @@ FindArmyWindow() {
 	i=0
 	While i<5 
 	{
-		PixelSearch, Px, Py, 1125, 993, 1310, 1018, 0x945020, 3, Fast RGB ;x1, y1, x2, y2 - brown color
+		PixelSearch, Px, Py, 809, 815, 989, 841, 0x945020, 3, Fast RGB ;x1, y1, x2, y2 - brown color
 		if ErrorLevel <=0 
 		{
 		   ; MsgBox, A color within 3 shades of variation was found at X%Px% Y%Py%.
 			;Click, %Px%, %Py%
-			PixelSearch, Px, Py, 1309, 992, 1484, 1015, 0x537f1d, 3, Fast RGB ;x1, y1, x2, y2 - green color
+			PixelSearch, Px, Py, 989, 814, 1165, 840, 0x537f1d, 3, Fast RGB ;x1, y1, x2, y2 - green color
 			
 			if ErrorLevel <=0
 				return true
