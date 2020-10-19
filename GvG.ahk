@@ -1,16 +1,26 @@
+gColorBx:=0
+gColorBy:=0
 f7:: ;altGr+7 abort 1
 Abort(12)
 return
 
 ;;test
 ^!8::
-	i=1
-	eight:=true
-	while(eight=true) {
-		ShowToolTip("Not found "+i, -1000)
-		Sleep, 1000
-		i++
-		eight := GetKeyState(8, P)
+	while(true) {
+		ShowToolTip("Going to activate DWR", -1000)
+		WinGet, activeWinId ,, A ; <-- need to identify window A = acitive
+		MouseGetPos, xpos, ypos
+		if WinExist("DWR-Next") {
+			WinActivate  ; Automatically uses the window found above.
+			Sleep, 10
+			Click, 200, 50 
+			Sleep, 100
+			WinActivate ahk_id %activeWinId%
+			MouseMove, xpos, ypos
+		} else {
+			ShowToolTip("Not found")
+		}
+		Sleep, 480000 ;8min
 	}
 return
 
@@ -28,16 +38,19 @@ While M<1000 {
 
 	While i<totalWave {
 		Sleep, 1000
-		LawGoodsFightButtonClick()
+		while (LawGoodsFightButtonClick()=false){
+			ShowToolTip("Could not find the fight button, abort 1")
+			Abort(1)
+		}
 
-		if FindArmyWindow() = true {
+		if FindArmyWindow() = true { 
 			;MsgBox, Army Window showed
 			SelectTwoTankArmy()
 			if AutoAttack(811, 809, 987, 843) = true {
 				Sleep, 4000
 				if AutoAttack(811, 809, 987, 843) = true {
 					Sleep, 2000
-					FightDone(875, 819, 1056, 847)
+					FightDone(875, 785, 1056, 847)
 					F++
 					ShowToolTip("Total Fight count "+F)
 					if (i<(totalWave-1)) {
@@ -45,8 +58,14 @@ While M<1000 {
 						Abort(13)
 					}
 				} else {
-					MessageWithSound("Breaking Cause No 2nd Wave, Fight "+F)
-					return
+					if (ClickButtonWithColor(700, 810, 760, 840, 0x7b2519)=true) {  ;retreat
+						if FightDone(1005, 640, 1150, 670) = true { ;surrender ;)
+							i-- ;go back one step
+						}
+					} else {
+						MessageWithSound("Breaking Cause No 2nd Wave, Fight "+F)
+						return
+					}
 				}
 			} else {
 				MessageWithSound("Breaking Cause No 1st Wave, Fight "+F)
@@ -83,36 +102,46 @@ While M<1000 {
 }
 return
 
-f5:: ;ctrl+alt+q - AA set
-Click, 1434,625 
-Sleep, 100  ; 1/10 second
-Click, 1385,873 ; place
-
+f4:: ;ctrl+alt+q - AA set
+	MouseGetPos, xpos, ypos
+	topX:=1399
+	topY:=612
+	botX:=1644
+	botY:=748
+	ShowToolTip("Looking for brown", -1000)
+	if(ClickButtonWithColor(topX, topY, botX, botY, 0x945020, 1)=true ) {
+		Str:="Clicked:"+gColorBx
+		Str .=" - "
+		Str .=gColorBy
+		ShowToolTip(Str)		
+		if(gColorBx>topX and gColorBy>topY and gColorBx<1452 and gColorBy<671) {
+			ShowToolTip("Set")
+			Sleep, 200  ; 1/10 second
+			Click, 1385,873 ; place, green button
+		}
+	}
+	MouseMove, xpos, ypos
 return
 
 
-f4::  ;ctrl+alt+s - set attack
+f5::  ;ctrl+alt+s - set attack
 
 Click, 1434,625 
-Sleep, 100  ; 1/10 second
+Sleep, 200  ; 1/10 second
 Click, 1398,957 ; place
-
-return
-
-^!d::  ;ctrl+alt+d - add DA
-
-Click, 1294,527 ;8th postion
-Click, 1059,652 ; place
 
 return
 
 
 f2::  ;ctrl+alt+a -- auto attack
 	MouseGetPos, xpos, ypos
-	if(ClickButtonWithColor(1122, 969, 1305, 1022, 0x945020, 1)=false ) {
-		ShowToolTip("Looking for green", -1000)
-		if (ClickButtonWithColor(1122, 969, 1305, 1022, 0x4a7219, 1)=false) {
-			Click, 1218,1007 ; place
+	if(ClickButtonWithColor(1168, 793, 1184, 808, 0xffffff, 1)=false) {
+		ShowToolTip("Looking for brown", -1000)
+		if(ClickButtonWithColor(1122, 969, 1305, 1022, 0x945020, 1)=false ) {
+			ShowToolTip("Looking for green", -1000)
+			if (ClickButtonWithColor(1122, 969, 1305, 1022, 0x4a7219, 1)=false) {
+				Click, 1218,1007 ; place
+			}
 		}
 	}
 	MouseMove, xpos, ypos
@@ -122,7 +151,7 @@ f3:: ;click
 	fkey:=true
 	while(fkey=true) {
 		Click
-		Sleep, 50
+		Sleep, 10
 		i++
 		fkey := GetKeyState(F3, P)
 	}
@@ -185,7 +214,85 @@ return
 	}
 return
 
+!^=:: ;; Find Snipe GB
+	WinGetActiveStats, Title, Width, Height, X, Y
+	botY := Height-71
+	LeftXArr := [359, 466, 574, 682, 788] ; 108 every next
+	nextBtnX:=924
+	halfW:= Width//2
+	halfH:=Height//2
+	OkX := halfW
+	OkY := halfH+275
+	tX := halfW+275
+	tY := halfH - 145
+	total :=1
+	While (total < 26) {
+		For index, leftX in LeftXArr {
+			ShowToolTip("Clicking..."+leftX)
+			Click, %leftX%, %botY%
+			
+			if (FindWindowWithButtonAndTitleBar(OkX, OkY, 0x945020, tX, tY, 0x5f2216)) {
+				ShowToolTip("found gb list")
+				i:=0
+				While (i<3) {
+					bX := halfW+263
+					bY := halfH-45+(i*30)
+					Click, %bX%, %bY%
+					if(FindWindowWithButtonAndTitleBar(halfW, halfH+320, 0x945020, tX, halfH-245, 0x5f2216)) { ;;950 850 - 1190 284
+						Click, 20, 120 ; click on top left corner to close window
+						Sleep, 500
+					} else {
+						ShowToolTip("Gb window not found")
+						break
+					}
+					i++
+				}
+			} else {
+				ShowToolTip("not found...")
+			}
+			
+			Click, 20, 120 ; click on top left corner to close window
+			Sleep, 500
+		}
+		Click %nextBtnX%, %botY%
+		sleep, 100
+		total++
+	}
+return
+
 ^Esc::Reload ;ExitApp
+
+FindWindowWithButtonAndTitleBar(bx, by, bC, tx, ty, tC) {
+	bx0 := bx-50
+	by0 := by-10
+	bx1 := bx+50
+	by1 := by+10
+	
+	tx0 := tx-10
+	ty0 := ty-10
+	tx1 := tx+10
+	ty1 := ty+10
+	i :=0
+	While(i<5) {
+		str := Format("{1}{2},{3} - {4},{5}", "Searching: ",bx0, by0, bx1, by1)
+		ShowToolTip(str)
+		PixelSearch, Px, Py, %bx0%, %by0%, %bx1%, %by1%, %bC%, 3, Fast RGB ;x1, y1, x2, y2 - brown color 0x945020
+		if ErrorLevel <=0 
+		{
+			ShowToolTip("Searching title")
+			PixelSearch, Px, Py, %tx0%, %ty0%, %tx1%, %ty1%, %tC% , 3, Fast RGB ;maroon 0x5f2216
+			
+			if ErrorLevel <=0
+				return true
+		} else {
+			;MsgBox Not found
+			i++
+		}
+		sleepSec := 500+((i**2)*100)
+		sleep, %sleepSec%
+	}
+	return false
+}
 
 
 SelectTwoTankArmy() {
@@ -196,16 +303,28 @@ SelectTwoTankArmy() {
 		i++
 	}
 	
+	;click on menu
+	Click, 1332, 617
+	sleep, 300
+	
+	;select All age
+	Click, 1214, 639
+	sleep, 200
 		
 	;click on tank 
-	Click, 817, 617
-	sleep, 50
-		Click, 1023, 676
-		sleep, 100
+	;Click, 817, 617
+	;sleep, 50
+	;	Click, 1023, 676
+	;	sleep, 100
 		
 		
 	;click on range 
 	Click, 949, 617
+	sleep, 50
+		Click, 1023, 676
+	; --------	
+	sleep, 50
+		Click, 1023, 676
 	sleep, 50
 		Click, 1023, 676
 		sleep, 100
@@ -256,7 +375,8 @@ AbortCord(x1, y1, x2, y2, count) {
 			PixelSearch, Px, Py, x1, y1, x2, y2, 0x7b2519, 3, Fast RGB
 			if (ErrorLevel <=0) {
 				Click, %Px%, %Py%
-				MouseMove, 50, 50
+				MouseMove, 50, 70
+				ShowToolTip("Abort "+i, -900)
 				i++
 			}
 		} 
@@ -278,7 +398,7 @@ LawGoodsFightButtonClick() {
 		{
 		   ; MsgBox, A color within 3 shades of variation was found at X%Px% Y%Py%.
 			Click, %Px%, %Py%
-			return
+			return true
 		} 
 		else 
 		{
@@ -288,8 +408,9 @@ LawGoodsFightButtonClick() {
 		sleepSec := 500+((i**2)*100)
 		sleep, %sleepSec%
 	}
-	
+	return false
 }
+;;;;;
 
 FindArmyWindow() {
 	i=0
@@ -328,6 +449,9 @@ ClickButtonWithColor(x1, y1, x2, y2, color, totalTries:=5){
 		PixelSearch, Px, Py, x1, y1, x2, y2, color, 3, Fast RGB ;x1, y1, x2, y2 
 		if ErrorLevel <=0 
 		{
+		   global gColorBx:=Px
+		   global gColorBy:=Py
+
 		   Click, %Px%, %Py%
 		   return true
 		} 
