@@ -267,7 +267,7 @@ return
 					bY := halfH-45+(i*30)
 					Click, %bX%, %bY%
 					if(FindWindowWithButtonAndTitleBar(halfW, halfH+320, 0x945020, tX, halfH-245, 0x5f2216)) { ;;950 850 - 1190 284
-						Click, 20, 120 ; click on top left corner to close window
+						Click, 750, 95 ; click on top mid to close window
 						Sleep, 500
 					} else {
 						ShowToolTip("Gb window not found")
@@ -279,7 +279,7 @@ return
 				ShowToolTip("not found...")
 			}
 			
-			Click, 20, 120 ; click on top left corner to close window
+			Click, 750, 95 ; click on top mid to close window
 			Sleep, 500
 		}
 		Click %nextBtnX%, %botY%
